@@ -1,0 +1,13 @@
+admin:
+  user: "admin"                      # To be customized
+  password: "adminpassword"          # To be customized
+ingress:
+  annotations:
+    kubernetes.io/ingress.class: nginx
+  enabled: true
+  hostname: grafana.juan.cluster     # To be customized
+metrics:
+  enabled: true
+  serviceMonitor:
+    enabled: true
+    namespace: monitoring

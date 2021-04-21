@@ -1,0 +1,18 @@
+rootUser:
+  user: root                     # To be customized
+  password: rootpassword         # To be customized
+db:
+  user: bn_wordpress             # To be customized
+  password: wordpresspassword    # To be customized
+  name: bitnami_wordpress        # To be customized
+galera:
+  name: galera
+  mariabackup:
+    user: mariabackup            # To be customized
+    password: galerapasssword    # To be customized
+replicaCount: 3
+metrics:
+  enabled: true
+  serviceMonitor:
+    enabled: true
+    namespace: monitoring

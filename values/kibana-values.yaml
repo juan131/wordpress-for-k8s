@@ -1,0 +1,14 @@
+elasticsearch:
+  hosts:
+    - elasticsearch-coordinating-only.logging.svc.cluster.local
+  port: 9200
+ingress:
+  annotations:
+    kubernetes.io/ingress.class: nginx
+  enabled: true
+  hostname: kibana.juan.cluster
+metrics:
+  enabled: true
+  serviceMonitor:
+    enabled: true
+    namespace: monitoring
