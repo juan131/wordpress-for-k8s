@@ -48,7 +48,7 @@ As an alternative, you can manually install each of the required charts. The tut
 - [Bitnami Fluentd](https://github.com/bitnami/charts/tree/master/bitnami/fluentd).
 - [Bitnami Elasticsearch](https://github.com/bitnami/charts/tree/master/bitnami/elasticsearch).
 - [Bitnami Kibana](https://github.com/bitnami/charts/tree/master/bitnami/kibana).
-- [Bitnami Contour](https://github.com/bitnami/charts/tree/master/bitnami/contour).
+- [Bitnami Nginx Ingress Controller](https://github.com/bitnami/charts/tree/master/bitnami/nginx-ingress-controller).
 
 You can find the corresponding **values.yaml** to deploy each of these charts under the *values/* directory. Those parameters including the comment `# To be customized` are meant to be adapted with your own credentials / preferences.
 

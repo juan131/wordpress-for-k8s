@@ -1,0 +1,68 @@
+operator:
+  args:
+    scanNamespaces:
+      - monitoring
+  prometheus:
+    serviceMonitor:
+      enabled: false
+grafana:
+  enabled: true
+  config:
+    security:
+      admin_user: admin              # To be customized
+      admin_password: adminpassword  # To be customized
+  ingress:
+    enabled: true
+    hostname: grafana.juan.cluster   # To be customized
+    tls: true
+    tlsSecretName: grafana.juan.cluster-tls
+    annotations:
+      kubernetes.io/tls-acme: "true"
+      cert-manager.io/cluster-issuer: self-signed
+      kubernetes.io/ingress.class: nginx
+      nginx.ingress.kubernetes.io/ssl-redirect: "false"
+extraDeploy:
+  - apiVersion: integreatly.org/v1alpha1
+    kind: GrafanaDashboard
+    metadata:
+      name: mysql-dashboard
+      labels:
+        app.kubernetes.io/instance: '{{ .Release.Name }}'
+        app.kubernetes.io/name: '{{ include "common.names.name" . }}'
+    spec:
+      url: https://raw.githubusercontent.com/juan131/wordpress-for-k8s/main/resources/mysql-metrics.yaml
+      datasources:
+        - inputName: "DS_PROMETHEUS"
+          datasourceName: "Prometheus"
+  - apiVersion: integreatly.org/v1alpha1
+    kind: GrafanaDashboard
+    metadata:
+      name: apache-dashboard
+      labels:
+        app.kubernetes.io/instance: '{{ .Release.Name }}'
+        app.kubernetes.io/name: '{{ include "common.names.name" . }}'
+    spec:
+      url: https://raw.githubusercontent.com/juan131/wordpress-for-k8s/main/resources/apache-metrics.yaml
+      datasources:
+        - inputName: "DS_PROMETHEUS"
+          datasourceName: "Prometheus"
+  - apiVersion: integreatly.org/v1alpha1
+    kind: GrafanaDataSource
+    metadata:
+      name: prometheus
+    spec:
+      name: prometheus.yaml
+      datasources:
+        - name: Prometheus
+          type: prometheus
+          access: proxy
+          url: http://kube-prometheus-prometheus.monitoring.svc.cluster.local:9090
+          isDefault: true
+          version: 1
+          editable: true
+          basicAuth: false
+          withCredentials: false
+          jsonData:
+            tlsAuth: false
+            tlsAuthWithCACert: false
+            tlsSkipVerify: true

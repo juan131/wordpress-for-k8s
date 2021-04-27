@@ -1,6 +1,0 @@
-defaultBackend:
-  enabled: false
-prometheus:
-  serviceMonitor:
-    namespace: monitoring
-    enabled: true

@@ -3,10 +3,13 @@ elasticsearch:
     - elasticsearch-coordinating-only.logging.svc.cluster.local
   port: 9200
 ingress:
+  enabled: true
+  hostname: kibana.juan.cluster     # To be customized
+  certManager: true
+  tls: true
   annotations:
     kubernetes.io/ingress.class: nginx
-  enabled: true
-  hostname: kibana.juan.cluster
+    cert-manager.io/cluster-issuer: self-signed
 metrics:
   enabled: true
   serviceMonitor:

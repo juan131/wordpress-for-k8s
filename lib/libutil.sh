@@ -68,21 +68,20 @@ get_chart_namespace() {
     local namespace
 
     case "$chart_name" in
-        contour)
-            namespace="contour"
-            ;;
         elasticsearch|kibana|fluentd)
             namespace="logging"
             ;;
-        kube-prometheus|grafana)
+        kube-prometheus|grafana-operator)
             namespace="monitoring"
             ;;
-        wordpress|mariadb-galera|memcached)
+        nginx-ingress-controller)
+            namespace="ingress"
+            ;;
+        mariadb-galera|memcached)
             namespace="wordpress"
             ;;
         *)
-            error "Invalid chart name $1"
-            exit 1
+            namespace="$chart_name"
             ;;
     esac
     echo "$namespace"

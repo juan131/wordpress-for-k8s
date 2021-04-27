@@ -33,8 +33,8 @@ extraDeploy:
         <match **>
           @type forward
           <server>
-            host fluentd-0.fluentd-headless.default.svc.cluster.local
-            port 24224
+            host "#{ENV['FLUENTD_HOST']}"
+            port "#{ENV['FLUENTD_PORT']}"
           </server>
     
           <buffer>
@@ -96,6 +96,10 @@ aggregator:
       value: elasticsearch-coordinating-only.logging.svc.cluster.local
     - name: ELASTICSEARCH_PORT
       value: 9200
+    - name: FLUENTD_HOST
+      value: fluentd-0.fluentd-headless.logging.svc.cluster.local
+    - name: FLUENTD_PORT
+      value: 24224
 forwarder:
   configMap: apache-log-parser
   extraEnv:

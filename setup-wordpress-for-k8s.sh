@@ -26,12 +26,13 @@ set -o pipefail
 # Constants
 ROOT_DIR="$(cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd)"
 CHARTS=(
+    "cert-manager"
     "kube-prometheus"
-    "grafana"
+    "grafana-operator"
     "elasticsearch"
     "kibana"
     "fluentd"
-    "contour"
+    "nginx-ingress-controller"
     "mariadb-galera"
     "memcached"
     "wordpress"
@@ -49,7 +50,7 @@ print_menu() {
     log "    $(basename -s .sh "${BASH_SOURCE[0]}")"
     log ""
     log "${RED}SYNOPSIS${RESET}"
-    log "    $script [${YELLOW}-uh${RESET}] [${YELLOW}--disable-contour${RESET}] [${YELLOW}--disable-logging${RESET}] [${YELLOW}--disable-monitoring${RESET}]"
+    log "    $script [${YELLOW}-uh${RESET}] [${YELLOW}--disable-cert-manager${RESET}] [${YELLOW}--disable-ingress${RESET}] [${YELLOW}--disable-logging${RESET}] [${YELLOW}--disable-monitoring${RESET}]"
     log ""
     log "${RED}DESCRIPTION${RESET}"
     log "    Script to setup WordPress on your K8s cluster."
@@ -57,7 +58,8 @@ print_menu() {
     log "    The options are as follow:"
     log ""
     log "      ${YELLOW}-h, --help${RESET}                Print this help menu."
-    log "      ${YELLOW}--disable-contour${RESET}         Disable deploying contour resources."
+    log "      ${YELLOW}--disable-cert-manager${RESET}    Disable deploying cert-manager resources."
+    log "      ${YELLOW}--disable-ingress${RESET}         Disable deploying ingress controller resources."
     log "      ${YELLOW}--disable-logging${RESET}         Disable deploying the logging resources."
     log "      ${YELLOW}--disable-monitoring${RESET}      Disable deploying the monitoring resources."
     log "      ${YELLOW}-u, --dry-run${RESET}             Enable \"dry run\" mode."
@@ -78,9 +80,14 @@ while [[ "$#" -gt 0 ]]; do
         -u|--dry-run)
             dry_run=1
             ;;
-        --disable-contour)
+        --disable-cert-manager)
+            for c in "${!CHARTS[@]}"; do
+                [[ "${CHARTS[c]}" = "cert-manager" ]] && unset 'CHARTS[c]'
+            done
+            ;;
+        --disable-ingress)
             for c in "${!CHARTS[@]}"; do                    
-                [[ "${CHARTS[c]}" = "contour" ]] && unset 'CHARTS[c]'
+                [[ "${CHARTS[c]}" = "nginx-ingress-controller" ]] && unset 'CHARTS[c]'
             done
             ;;
         --disable-logging)
@@ -90,7 +97,7 @@ while [[ "$#" -gt 0 ]]; do
             ;;
         --disable-monitoring)
             for c in "${!CHARTS[@]}"; do                    
-                [[ "${CHARTS[c]}" =~ ^(kube-prometheus|grafana)$ ]] && unset 'CHARTS[c]'
+                [[ "${CHARTS[c]}" =~ ^(kube-prometheus|grafana-operator)$ ]] && unset 'CHARTS[c]'
             done
             ;;
         *)
@@ -115,13 +122,28 @@ if [[ "$dry_run" -eq 1 ]]; then
     exit 0
 fi
 
-info "Adding 'bitnami' chart repository..."
+info "Adding 'bitnami' and 'jetstack' chart repositories..."
 silence helm repo add bitnami https://charts.bitnami.com/bitnami
+silence helm repo add jetstack https://charts.jetstack.io
 info "Updating chart repositories..."
 silence helm repo update
 for c in "${CHARTS[@]}"; do
     namespace="$(get_chart_namespace "$c")"
     silence kubectl create ns "$namespace" || true
     info "Installing $c in namespace '$namespace'..."
-    silence helm install --wait "$c" "bitnami/${c}" -f "${ROOT_DIR}/values/${c}-values.yaml" -n "$namespace"
+    if [[ "$c" = "cert-manager" ]]; then
+        silence helm install --wait "$c" "jetstack/${c}" -f "${ROOT_DIR}/values/${c}-values.yaml" -n "$namespace"
+        clusterIssuer="$(cat << EOF
+apiVersion: cert-manager.io/v1alpha2
+kind: ClusterIssuer
+metadata:
+  name: self-signed
+spec:
+  selfSigned: {}
+EOF
+)"
+        silence kubectl apply -f <(echo "$clusterIssuer")
+    else
+        silence helm install --wait "$c" "bitnami/${c}" -f "${ROOT_DIR}/values/${c}-values.yaml" -n "$namespace"
+    fi
 done

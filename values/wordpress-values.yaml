@@ -24,14 +24,17 @@ persistence:
   accessModes:
     - ReadWriteMany
   storageClass: nfs
+  size: 8Gi
 service:
   type: ClusterIP
 ingress:
   enabled: true
-  certManager: true
   hostname: wordpress.juan.cluster     # To be customized
+  certManager: true
+  tls: true
   annotations:
     kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: self-signed
 pdb:
   create: true
   minAvailable: 1
