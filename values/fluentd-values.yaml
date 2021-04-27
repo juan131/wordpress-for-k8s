@@ -36,7 +36,6 @@ extraDeploy:
             host "#{ENV['FLUENTD_HOST']}"
             port "#{ENV['FLUENTD_PORT']}"
           </server>
-    
           <buffer>
             @type file
             path /opt/bitnami/fluentd/logs/buffers/logs.buffer
@@ -67,7 +66,7 @@ extraDeploy:
           bind 0.0.0.0
           port 9880
         </source>
-        # Throw the healthcheck to the standard output instead of forwarding it
+        # Throw the health check to the standard output instead of forwarding it
         <match fluentd.healthcheck>
           @type stdout
         </match>
@@ -95,11 +94,7 @@ aggregator:
     - name: ELASTICSEARCH_HOST
       value: elasticsearch-coordinating-only.logging.svc.cluster.local
     - name: ELASTICSEARCH_PORT
-      value: 9200
-    - name: FLUENTD_HOST
-      value: fluentd-0.fluentd-headless.logging.svc.cluster.local
-    - name: FLUENTD_PORT
-      value: 24224
+      value: "9200"
 forwarder:
   configMap: apache-log-parser
   extraEnv:
@@ -107,6 +102,10 @@ forwarder:
       value: root
     - name: FLUENTD_DAEMON_GROUP
       value: root
+    - name: FLUENTD_HOST
+      value: fluentd-0.fluentd-headless.logging.svc.cluster.local
+    - name: FLUENTD_PORT
+      value: "24224"
 metrics:
   enabled: true
   serviceMonitor:

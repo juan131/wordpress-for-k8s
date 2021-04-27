@@ -5,6 +5,7 @@ operator:
   prometheus:
     serviceMonitor:
       enabled: false
+      namespace: monitoring
 grafana:
   enabled: true
   config:
@@ -30,7 +31,7 @@ extraDeploy:
         app.kubernetes.io/instance: '{{ .Release.Name }}'
         app.kubernetes.io/name: '{{ include "common.names.name" . }}'
     spec:
-      url: https://raw.githubusercontent.com/juan131/wordpress-for-k8s/main/resources/mysql-metrics.yaml
+      url: https://raw.githubusercontent.com/juan131/wordpress-for-k8s/main/resources/mysql-metrics.json
       datasources:
         - inputName: "DS_PROMETHEUS"
           datasourceName: "Prometheus"
@@ -42,7 +43,7 @@ extraDeploy:
         app.kubernetes.io/instance: '{{ .Release.Name }}'
         app.kubernetes.io/name: '{{ include "common.names.name" . }}'
     spec:
-      url: https://raw.githubusercontent.com/juan131/wordpress-for-k8s/main/resources/apache-metrics.yaml
+      url: https://raw.githubusercontent.com/juan131/wordpress-for-k8s/main/resources/apache-metrics.json
       datasources:
         - inputName: "DS_PROMETHEUS"
           datasourceName: "Prometheus"

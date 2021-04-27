@@ -5,11 +5,4 @@ alertmanager:
 prometheus:
   enabled: true
   ingress:
-    enabled: true
-    hostname: prometheus.juan.cluster     # To be customized
-    certManager: true
-    tls: true
-    annotations:
-      kubernetes.io/ingress.class: nginx
-      cert-manager.io/cluster-issuer: self-signed
-      nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    enabled: false

@@ -27,6 +27,9 @@ $ ./setup-wordpress-for-k8s.sh
 - [Kubernetes](https://kubernetes.io/) 1.12+
 - [Helm](https://helm.sh/) 3.1.0
 - [Dynamic Volume Provisioning](https://kubernetes.io/docs/concepts/storage/dynamic-provisioning/) support in the underlying infrastructure
+- ReadWriteMany volumes for deployment scaling
+
+> Note: tested in a 3-node GKE clusters (using "n1-standard-4" machines). Kubernetes version: 1.17.17
 
 ### Setup a Kubernetes Cluster & Install Helm
 
@@ -44,7 +47,7 @@ As an alternative, you can manually install each of the required charts. The tut
 - [Bitnami Memcached](https://github.com/bitnami/charts/tree/master/bitnami/memcached).
 - [Bitnami MariaDB Galera](https://github.com/bitnami/charts/tree/master/bitnami/mariadb-galera).
 - [Bitnami kube-prometheus](https://github.com/bitnami/charts/tree/master/bitnami/kube-prometheus).
-- [Bitnami Grafana](https://github.com/bitnami/charts/tree/master/bitnami/grafana).
+- [Bitnami Grafana Operator](https://github.com/bitnami/charts/tree/master/bitnami/grafana-operator).
 - [Bitnami Fluentd](https://github.com/bitnami/charts/tree/master/bitnami/fluentd).
 - [Bitnami Elasticsearch](https://github.com/bitnami/charts/tree/master/bitnami/elasticsearch).
 - [Bitnami Kibana](https://github.com/bitnami/charts/tree/master/bitnami/kibana).

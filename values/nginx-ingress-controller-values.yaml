@@ -1,5 +1,5 @@
 defaultBackend:
-  enabled: true
+  enabled: false
 metrics:
   enabled: true
   serviceMonitor:
