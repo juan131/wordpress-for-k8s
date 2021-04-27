@@ -26,7 +26,7 @@ set -o pipefail
 # Constants
 ROOT_DIR="$(cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd)"
 CHARTS=(
-    "cert-manager"
+    "external-dns"
     "kube-prometheus"
     "grafana-operator"
     "elasticsearch"
@@ -36,6 +36,7 @@ CHARTS=(
     "mariadb-galera"
     "memcached"
     "wordpress"
+    "cert-manager"
 )
 
 # Load Libraries
@@ -50,7 +51,7 @@ print_menu() {
     log "    $(basename -s .sh "${BASH_SOURCE[0]}")"
     log ""
     log "${RED}SYNOPSIS${RESET}"
-    log "    $script [${YELLOW}-uh${RESET}] [${YELLOW}--disable-cert-manager${RESET}] [${YELLOW}--disable-ingress${RESET}] [${YELLOW}--disable-logging${RESET}] [${YELLOW}--disable-monitoring${RESET}]"
+    log "    $script [${YELLOW}-uh${RESET}] [${YELLOW}--disable-dns-and-certs${RESET}] [${YELLOW}--disable-ingress${RESET}] [${YELLOW}--disable-logging${RESET}] [${YELLOW}--disable-monitoring${RESET}]"
     log ""
     log "${RED}DESCRIPTION${RESET}"
     log "    Script to setup WordPress on your K8s cluster."
@@ -58,7 +59,7 @@ print_menu() {
     log "    The options are as follow:"
     log ""
     log "      ${YELLOW}-h, --help${RESET}                Print this help menu."
-    log "      ${YELLOW}--disable-cert-manager${RESET}    Disable deploying cert-manager resources."
+    log "      ${YELLOW}--disable-dns-and-certs${RESET}   Disable deploying external-dns & cert-manager resources."
     log "      ${YELLOW}--disable-ingress${RESET}         Disable deploying ingress controller resources."
     log "      ${YELLOW}--disable-logging${RESET}         Disable deploying the logging resources."
     log "      ${YELLOW}--disable-monitoring${RESET}      Disable deploying the monitoring resources."
@@ -80,9 +81,9 @@ while [[ "$#" -gt 0 ]]; do
         -u|--dry-run)
             dry_run=1
             ;;
-        --disable-cert-manager)
+        --disable-dns-and-certs)
             for c in "${!CHARTS[@]}"; do
-                [[ "${CHARTS[c]}" = "cert-manager" ]] && unset 'CHARTS[c]'
+                [[ "${CHARTS[c]}" =~ ^(cert-manager|external-dns)$ ]] && unset 'CHARTS[c]'
             done
             ;;
         --disable-ingress)
@@ -137,9 +138,17 @@ for c in "${CHARTS[@]}"; do
 apiVersion: cert-manager.io/v1alpha2
 kind: ClusterIssuer
 metadata:
-  name: self-signed
+  name: letsencrypt-prod
 spec:
-  selfSigned: {}
+  acme:
+    email: juan@bitnami.com
+    server: https://acme-v02.api.letsencrypt.org/directory
+    privateKeySecretRef:
+      name: letsencrypt-prod
+    solvers:
+    - http01:
+        ingress:
+          class: nginx
 EOF
 )"
         silence kubectl apply -f <(echo "$clusterIssuer")

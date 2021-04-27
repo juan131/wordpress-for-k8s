@@ -32,6 +32,6 @@ Please refer to the [Logging Guide](logging.md) for detailed information.
 
 ## TLS certificates management and issuance
 
-The solution makes use of the cert-manager and ingress resources to expose the blog site externally through HTTPS.
+The solution makes use of the cert-manager, external-dns and ingress resources to expose the blog site externally through HTTPS.
 
 Please refer to the [TLS Management Guide](tls.md) for detailed information.

@@ -4,12 +4,12 @@ elasticsearch:
   port: 9200
 ingress:
   enabled: true
-  hostname: kibana.juan.cluster     # To be customized
+  hostname: KIBANA-DNS-NAME       # To be customized
   certManager: true
   tls: true
   annotations:
     kubernetes.io/ingress.class: nginx
-    cert-manager.io/cluster-issuer: self-signed
+    cert-manager.io/cluster-issuer: letsencrypt-prod
     nginx.ingress.kubernetes.io/ssl-redirect: "false"
 metrics:
   enabled: true

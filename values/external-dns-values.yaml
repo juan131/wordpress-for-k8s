@@ -1,0 +1,8 @@
+domainFilters:
+  - DNS-NAME          # To be customized
+txtOwnerId: external-dns
+provider: google
+rbac:
+  create: true
+  apiVersion: v1
+policy: upsert-only

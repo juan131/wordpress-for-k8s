@@ -11,6 +11,7 @@ This repository is a guide attempts to **unleash the potential of the Bitnami ca
 - Caching database queries and objects.
 - Monitoring.
 - Log collection & analysis.
+- DNS propagation.
 - TLS certificates management and issuance.
 
 ## TL;DR
@@ -37,6 +38,8 @@ Follow the instruction under the "Before you being" section of the README.md fil
 
 - [Before you begin](https://github.com/bitnami/charts#before-you-begin).
 
+> Note: for GKE, the cluster must be created with the required scopes to manage CloudDNS in order to use External DNS.
+
 ## How to use this tutorial
 
 This tutorial provides a script ([setup-wordpress-for-k8s.sh](setup-wordpress-for-k8s.sh)) that you can use to deploy all the required solutions in your Kubernetes cluster in a orchestrated way.
@@ -52,6 +55,8 @@ As an alternative, you can manually install each of the required charts. The tut
 - [Bitnami Elasticsearch](https://github.com/bitnami/charts/tree/master/bitnami/elasticsearch).
 - [Bitnami Kibana](https://github.com/bitnami/charts/tree/master/bitnami/kibana).
 - [Bitnami Nginx Ingress Controller](https://github.com/bitnami/charts/tree/master/bitnami/nginx-ingress-controller).
+- [Bitnami External DNS](https://github.com/bitnami/charts/tree/master/bitnami/external-dns).
+- [Cert Manager](https://github.com/jetstack/cert-manager/tree/master/deploy/charts/cert-manager).
 
 You can find the corresponding **values.yaml** to deploy each of these charts under the *values/* directory. Those parameters including the comment `# To be customized` are meant to be adapted with your own credentials / preferences.
 

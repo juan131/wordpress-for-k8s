@@ -29,12 +29,12 @@ service:
   type: ClusterIP
 ingress:
   enabled: true
-  hostname: wordpress.juan.cluster     # To be customized
+  hostname: WORDPRESS-DNS-NAME         # To be customized
   certManager: true
   tls: true
   annotations:
     kubernetes.io/ingress.class: nginx
-    cert-manager.io/cluster-issuer: self-signed
+    cert-manager.io/cluster-issuer: letsencrypt-prod
 pdb:
   create: true
   minAvailable: 1

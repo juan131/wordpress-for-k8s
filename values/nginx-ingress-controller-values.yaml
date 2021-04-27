@@ -1,5 +1,7 @@
 defaultBackend:
   enabled: false
+publishService:
+  enabled: true
 metrics:
   enabled: true
   serviceMonitor:

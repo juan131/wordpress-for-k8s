@@ -10,19 +10,31 @@ grafana:
   enabled: true
   config:
     security:
-      admin_user: admin              # To be customized
-      admin_password: adminpassword  # To be customized
+      admin_user: admin                 # To be customized
+      admin_password: adminpassword     # To be customized
   ingress:
     enabled: true
-    hostname: grafana.juan.cluster   # To be customized
+    hostname: GRAFANA-DNS-NAME          # To be customized
     tls: true
-    tlsSecretName: grafana.juan.cluster-tls
+    tlsSecretName: GRAFANA-DNS-NAME-tls # To be customized
     annotations:
       kubernetes.io/tls-acme: "true"
-      cert-manager.io/cluster-issuer: self-signed
+      cert-manager.io/cluster-issuer: letsencrypt-prod
       kubernetes.io/ingress.class: nginx
       nginx.ingress.kubernetes.io/ssl-redirect: "false"
 extraDeploy:
+  - apiVersion: integreatly.org/v1alpha1
+    kind: GrafanaDashboard
+    metadata:
+      name: k8s-cluster-dashboard
+      labels:
+        app.kubernetes.io/instance: '{{ .Release.Name }}'
+        app.kubernetes.io/name: '{{ include "common.names.name" . }}'
+    spec:
+      url: https://raw.githubusercontent.com/juan131/wordpress-for-k8s/main/resources/kubernetes-cluster-monitoring.json
+      datasources:
+        - inputName: "DS_PROMETHEUS"
+          datasourceName: "Prometheus"
   - apiVersion: integreatly.org/v1alpha1
     kind: GrafanaDashboard
     metadata:
