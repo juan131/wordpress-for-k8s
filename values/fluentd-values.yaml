@@ -2,8 +2,14 @@ extraDeploy:
   - apiVersion: v1
     data:
       fluentd.conf: |
-        # Ignore fluentd own events
-        <match fluent.**>
+        # ignore fluentd own logs
+        <label @FLUENT_LOG>
+          <match fluent.*>
+            @type null
+          </match>
+        </label>
+        # ignore healthcheck logs
+        <match fluentd.healthcheck>
           @type null
         </match>
         # HTTP input for the liveness and readiness probes
@@ -11,38 +17,34 @@ extraDeploy:
           @type http
           port 9880
         </source>
-        # Throw the healthcheck to the standard output instead of forwarding it
-        <match fluentd.healthcheck>
-          @type stdout
-        </match>
         # Get the logs from the containers running in the cluster
-        # This block parses logs using an expression valid for the Apache log format
-        # Update this depending on your application log format
         <source>
           @type tail
+          @label @KUBERNETES
           path /var/log/containers/*.log
           pos_file /opt/bitnami/fluentd/logs/buffers/fluentd-docker.pos
-          tag www.log
+          tag kubernetes.*
           <parse>
-            @type regexp
-            expression /^(?<host>[^ ]*) [^ ]* (?<user>[^ ]*) \[(?<time>[^\]]*)\] \\"(?<method>\S+)(?: +(?<path>[^ ]*) +\S*)?\\" (?<code>[^ ]*) (?<size>[^ ]*)(?: "(?<referer>[^\"]*)" "(?<agent>[^\"]*)")?$/
-            time_format %d/%b/%Y:%H:%M:%S %z
+            @type json
+            time_format %Y-%m-%dT%H:%M:%S.%NZ
           </parse>
         </source>
-        # Forward all logs to the aggregators
-        <match **>
-          @type forward
-          <server>
-            host "#{ENV['FLUENTD_HOST']}"
-            port "#{ENV['FLUENTD_PORT']}"
-          </server>
-          <buffer>
-            @type file
-            path /opt/bitnami/fluentd/logs/buffers/logs.buffer
-            flush_thread_count 2
-            flush_interval 5s
-          </buffer>
-        </match>
+        # Forward Kubernetes logs to the aggregator
+        <label @KUBERNETES>
+          <match **>
+            @type forward
+            <server>
+              host "#{ENV['FLUENTD_HOST']}"
+              port "#{ENV['FLUENTD_PORT']}"
+            </server>
+            <buffer>
+              @type file
+              path /opt/bitnami/fluentd/logs/buffers/logs.buffer
+              flush_thread_count 2
+              flush_interval 5s
+            </buffer>
+          </match>
+        </label>
     kind: ConfigMap
     metadata:
       name: apache-log-parser
@@ -50,39 +52,54 @@ extraDeploy:
   - apiVersion: v1
     data:
       fluentd.conf: |
-        # Ignore fluentd own events
-        <match fluent.**>
+        # ignore fluentd own logs
+        <label @FLUENT_LOG>
+          <match fluent.*>
+            @type null
+          </match>
+        </label>
+        # ignore healthcheck logs
+        <match fluentd.healthcheck>
           @type null
         </match>
         # TCP input to receive logs from the forwarders
         <source>
           @type forward
-          bind 0.0.0.0
           port 24224
         </source>
         # HTTP input for the liveness and readiness probes
         <source>
           @type http
-          bind 0.0.0.0
           port 9880
         </source>
-        # Throw the health check to the standard output instead of forwarding it
-        <match fluentd.healthcheck>
-          @type stdout
-        </match>
-        # Send the logs to Elasticsearch
-        <match **>
+        # parse apache logs from wordpress containers
+        <filter kubernetes.var.log.containers.wordpress*.log>
+          @type parser
+          key_name log
+          <parse>
+            @type apache2
+          </parse>
+        </filter>
+        # send apache logs to elasticsearch
+        <match kubernetes.var.log.containers.wordpress*.log>
           @type elasticsearch
           include_tag_key true
+          tag_key _key
           host "#{ENV['ELASTICSEARCH_HOST']}"
           port "#{ENV['ELASTICSEARCH_PORT']}"
           logstash_format true
+          logstash_prefix fluentd
+          suppress_type_name true
           <buffer>
             @type file
             path /opt/bitnami/fluentd/logs/buffers/logs.buffer
             flush_thread_count 2
             flush_interval 5s
           </buffer>
+        </match>
+        # ignore the rest of kubernetes logs
+        <match kubernetes.**>
+          @type null
         </match>
     kind: ConfigMap
     metadata:
