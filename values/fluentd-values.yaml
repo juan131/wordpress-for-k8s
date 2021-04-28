@@ -45,7 +45,7 @@ extraDeploy:
         </match>
     kind: ConfigMap
     metadata:
-      name: elasticsearch-output
+      name: apache-log-parser
       namespace: logging
   - apiVersion: v1
     data:
@@ -70,7 +70,7 @@ extraDeploy:
         <match fluentd.healthcheck>
           @type stdout
         </match>
-        # Send the logs to the standard output
+        # Send the logs to Elasticsearch
         <match **>
           @type elasticsearch
           include_tag_key true
@@ -86,7 +86,7 @@ extraDeploy:
         </match>
     kind: ConfigMap
     metadata:
-      name: apache-log-parser
+      name: elasticsearch-output
       namespace: logging
 aggregator:
   configMap: elasticsearch-output
