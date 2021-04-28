@@ -10,7 +10,7 @@ This is possible thanks to the capabilities provided by:
 
 The following diagram illustrates how these components interact wit each other:
 
-![WordPress for K8s](img/exposure-and-tls.png)
+![Exposure and TLS](img/exposure-and-tls.png)
 
 ## Nginx Ingress Controller and ExternalDNS
 
