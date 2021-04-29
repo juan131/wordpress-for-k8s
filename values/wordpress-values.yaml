@@ -8,6 +8,13 @@ wordpressScheme: https
 wordpressConfigureCache: true
 allowEmptyPassword: false
 replicaCount: 1
+resources:
+  limits:
+    memory: 512Mi
+    cpu: 400m
+  requests:
+    memory: 256Mi
+    cpu: 200m
 livenessProbe:
   enabled: true
   httpGet:
