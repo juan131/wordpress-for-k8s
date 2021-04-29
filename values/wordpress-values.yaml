@@ -48,6 +48,13 @@ autoscaling:
   maxReplicas: 11
 metrics:
   enabled: true
+  resources:
+    limits:
+      memory: 128Mi
+      cpu: 100m
+    requests:
+      memory: 64Mi
+      cpu: 50m
   serviceMonitor:
     enabled: true
     namespace: monitoring
